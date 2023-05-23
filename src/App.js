@@ -1,28 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 function App() {
-  const [toDo,setToDo] = useState("");
-  const [toDos,setToDos] = useState([]);
-  const onChange=(event)=>setToDo(event.target.value);
-  const onSubmit = (event) => {
-    event.preventDefault();
-    if(toDo === ""){
-      return;
-    }
-    setToDos((currentArray)=>[toDo,...currentArray]);
-    setToDo("");
-  };
-  console.log(toDos);
-  return (
-    <div className="App">
-      <h1>My To Do ({toDos.length})</h1>
-      <form onSubmit={onSubmit}>
-        <input onChange={onChange} value={toDo} type="text" placeholder="write your to do..."/>
-        <button>Add To Do</button>
-      </form>
-      <hr/>
-        {toDos.map((item,index)=><li key={index}>{item}</li>)}
-    </div>
-  );
+    const [loading,setLoading] = useState(true);
+    const [conis,setCoins] = useState([]);
+    useEffect(()=>{//컴포넌트가 렌더링 될때마다 특정 작업을 실행할 수 있도록 하는 hook
+      fetch("https://api.coinpaprika.com/v1/tickers").then((response)=>
+      response.json())
+      .then((json)=>{
+        setCoins(json);
+        setLoading(false);
+
+      });
+    }, [])
+    return (
+      <div>
+        <h1>The Coins ({conis.length})</h1>
+        {loading ? <strong>Loading..</strong> : null}
+        <ul>
+          {conis.map((coin)=><li>{coin.name} ({coin.symbol}) : $ {coin.quotes.USD.price} USD</li>)}
+        </ul>
+      </div>
+    )
+
 }
 
 export default App;
